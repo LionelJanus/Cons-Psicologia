@@ -1,15 +1,16 @@
 const Turno = require('../models/turnoModel');
 
+
 // Crear un nuevo turno
 const crearTurno = async (req, res) => {
   try {
-    const { nombre, apellido, telefono, fecha, hora } = req.body;
+    const { nombre, apellido, telefono, fecha, hora, documento, prestador,obraSocial } = req.body;
     const turnoExistente = await Turno.findOne({ fecha, hora });
     if (turnoExistente) {
       return res.status(400).json({ message: 'El turno ya está ocupado. Elige otra fecha y hora.' });
     }
 
-    const nuevoTurno = new Turno({ nombre, apellido, telefono, fecha, hora });
+    const nuevoTurno = new Turno({ nombre, apellido, telefono, fecha, hora, documento, prestador, obraSocial });
     await nuevoTurno.save();
     res.status(201).json({ message: 'Turno creado con éxito' });
   } catch (error) {
