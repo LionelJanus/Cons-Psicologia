@@ -13,8 +13,8 @@
         <h1>Iniciar Sesión del Médico</h1>
     </header>
     <div class="menu-medico">
-        <li style="list-style: none;margin-left: 10px;margin-top: 20px;"><a href="index.html"
-                style="color: white;">Volver</a></li>
+        <li style="list-style: none;background-color: #1f2937;"><a href="index.html"
+                style="margin-left:10px;color: white;">Volver</a></li>
     </div>
     <main>
         <section id="login" style="width: inherit; padding: 20px;">
@@ -30,19 +30,19 @@
             </form>
         </section>
         <section id="turnos" style="display: none;">
-            <h2 style="display: flex;justify-content: center;">
-                Turnos Asignados</h2>
             <!-- Botón para abrir el modal de agregar turno -->
             <button id="abrirModalAgregarTurno"
-                style="display: none;margin-left: 10px; background-color: #5b7979; color: white; padding: 10px 20px; border: none; border-radius: 5px; margin-bottom: 20px;">
+                style="display: none;margin-left: 10px; background-color: #5b7979; color: white; padding: 10px 20px; border: none; border-radius: 5px; margin-bottom: 20px;margin-top: 20px;">
                 Agregar Turno
             </button>
 
+            <h2 style="display: flex;justify-content: center;">
+                Turnos Asignados</h2>
             <!-- Modal para agregar turno -->
             <div id="modalAgregarTurno" class="modal" style="display: none;">
                 <div class="modal-content">
                     <span id="cerrarModalAgregarTurno" class="close" style="color: red;font-size: 30px;display: flex;
-    justify-content: flex-end;">&times;</span>
+    justify-content: flex-end;cursor: pointer;">&times;</span>
                     <h2>Agregar Turno</h2>
                     <form id="formAgregarTurno">
                         <label for="nombre">Nombre:</label>
@@ -73,7 +73,7 @@
                         <th>Teléfono</th>
                         <th>Fecha</th>
                         <th>Hora</th>
-                        <th>X</th>
+                        <th>Eliminar</th>
                     </tr>
                 </thead>
                 <tbody id="lista-turnos">
