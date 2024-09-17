@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Psicología - Turnos</title>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="./styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+
+</head>
+
+<body>
+    <div class="hamburger-menu" id="hamburger-menu">
+        <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+    </div>
+    <header class="sidebar">
+        <nav class="navbar">
+            <div class="logo">
+                <h1>Consultorio</h1>
+            </div>
+            <button class="close-menu" id="close-menu">
+                <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+            <ul class="nav-links">
+                <li><a href="#home">Home</a></li>
+                <li><a href="#nosotros">Nosotros</a></li>
+                <li><a href="#turnos">Turnos</a></li>
+                <li><a href="medico.html">Medico</a></li> <!-- Enlace añadido aquí -->
+                <li><a href="#contacto">Contacto</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <section id="home">
+            <h1>Psicología</h1>
+            <p>Te ayudamos a mejorar tu bienestar emocional.</p>
+        </section>
+
+        <section id="nosotros">
+            <h2>Nosotros</h2>
+            <p>Somos un equipo de psicólogos dedicados a ayudarte.</p>
+        </section>
+
+        <section id="turnos">
+            <h2>Solicita tu Turno</h2>
+            <form id="turnoForm">
+                <label for="nombre">Nombre:</label>
+                <input type="text" id="nombre" required>
+
+                <label for="apellido">Apellido:</label>
+                <input type="text" id="apellido" required>
+
+                <label for="telefono">Teléfono:</label>
+                <input type="tel" id="telefono" required>
+
+                <label for="fecha">Fecha:</label>
+                <input type="date" id="fecha" required>
+
+                <label for="hora">Hora:</label>
+                <input type="time" id="hora" required>
+
+                <button type="submit">Solicitar Turno</button>
+            </form>
+        </section>
+        <script>
+            document.getElementById('turnoForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                const nombre = document.getElementById('nombre').value;
+                const apellido = document.getElementById('apellido').value;
+                const telefono = document.getElementById('telefono').value;
+                const fecha = document.getElementById('fecha').value;
+                const hora = document.getElementById('hora').value;
+
+                // Validación de la fecha
+                const fechaSeleccionada = new Date(fecha);
+                const fechaActual = new Date().toISOString().split('T')[0]; // Obtener fecha actual en formato YYYY-MM-DD
+
+                // Funcion para no permitir turnos anteriores a la fecha en curso.
+                if (fecha < fechaActual) {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Fecha inválida",
+                        text: "No se pueden solicitar turnos para fechas anteriores a la actual.",
+                    });
+                    return; // Detener el envío del formulario
+                }
+
+                try {
+                    const response = await fetch('http://localhost:5000/api/turnos', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ nombre, apellido, telefono, fecha, hora }),
+                    });
+
+                    const data = await response.json();
+                    if (response.ok) {
+                        Swal.fire({
+                            position: "top-end",
+                            title: "Turno Solicitado con exito",
+                            showConfirmButton: false,
+                            timer: 1500
+                        });
+                        // Limpiar el formulario o redirigir al usuario según sea necesario
+                    } else {
+                        Swal.fire({
+                            icon: "error",
+                            title: "Error",
+                            text: 'Error al solicitar el turno: ' + data.message
+                        });
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    Swal.fire({
+                        icon: "error",
+                        title: "Error",
+                        text: "Ocurrió un error al solicitar el turno."
+                    });
+                }
+            });
+
+        </script>
+        <section id="contacto"
+            style="display: flex; justify-content: center; align-items: center; min-height: 100vh; background-color: #e0ebeb; padding: 20px;">
+            <div style="flex-direction: row;    display: contents;; background-color: #ffffff;border-radius: 10px
+; max-width: 1200px; width: 100%; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); gap: 20px;">
+
+                <!-- Información de contacto -->
+                <div style="text-align: start;">
+                    <h2 style="color: #5b7979; font-size: 2em;">Contacto</h2>
+                    <p style="font-size: 1.1em; color: #5b7979;">Atención ONLINE y presencial, de forma particular.</p>
+                    <p>¿En qué puedo ayudarte?
+                        <br>Podes enviarme mensaje por WhatsApp y te responderé a la brevedad.
+                    </p>
+
+                    <!-- Información adicional con íconos -->
+                    <p>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#5b7979"
+                            viewBox="0 0 24 24">
+                            <path
+                                d="M20 3h-16c-1.104 0-2 .896-2 2v14c0 1.104.896 2 2 2h16c1.104 0 2-.896 2-2v-14c0-1.104-.896-2-2-2zm-8 17c-4.411 0-8-3.589-8-8s3.589-8 8-8 8 3.589 8 8-3.589 8-8 8zm0-14c-3.313 0-6 2.687-6 6s2.687 6 6 6 6-2.687 6-6-2.687-6-6-6zm2.25 8.25l-3.5-3.5v2.5h-2v-4h4v2h-2v2.5l3.5 3.5z" />
+                        </svg>
+                        +54 9 11 5385-4363
+                    </p>
+                    <p>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#5b7979"
+                            viewBox="0 0 24 24">
+                            <path
+                                d="M21 19v-11h-18v11c0 .552.447 1 1 1h16c.553 0 1-.448 1-1zm-9-7l-7 4v-8l7 4zm1 0l7-4v8l-7-4zm-7 9v-1h10v1h-10zm16-17h-16c-1.104 0-2 .896-2 2v14c0 1.104.896 2 2 2h16c1.104 0 2-.896 2-2v-14c0-1.104-.896-2-2-2zm-3 8.5c-.829 0-1.5-.671-1.5-1.5s.671-1.5 1.5-1.5 1.5.671 1.5 1.5-.671 1.5-1.5 1.5z" />
+                        </svg>
+                        Buenos Aires
+                    </p>
+                    <p>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#5b7979"
+                            viewBox="0 0 24 24">
+                            <path
+                                d="M20 2h-16c-1.104 0-2 .896-2 2v16c0 1.104.896 2 2 2h16c1.104 0 2-.896 2-2v-16c0-1.104-.896-2-2-2zm-8 11h-4v-2h4v2zm2 2h-6v-6h6v6zm-8-10v2h12v-2h-12zm0 14v-6h2v6h-2zm12 0h-6v-6h6v6z" />
+                        </svg>
+                        lj.lionel86@gmail.com
+                    </p>
+                </div>
+
+                <!-- Formulario de contacto -->
+                <form id="contactForm" style="flex: 1; background-color: #f9f9f9; padding: 20px; border-radius: 10px;">
+                    <label for="nombreContacto" style="display: block; margin-bottom: 10px;">Nombre:</label>
+                    <input type="text" id="nombreContacto" style="width: 90%; margin-bottom: 20px;" required>
+
+                    <label for="apellidoContacto" style="display: block; margin-bottom: 10px;">Apellido:</label>
+                    <input type="text" id="apellidoContacto" style="width: 90%; margin-bottom: 20px;" required>
+
+                    <label for="psicoterapia" style="display: block; margin-bottom: 10px;">Psicoterapia:</label>
+                    <div style="margin-bottom: 20px; display: flex; gap: 10px; justify-content: start;">
+                        <input type="radio" id="online" name="psicoterapia" value="Online">
+                        <label for="online">Online</label>
+                        <input type="radio" id="presencial" name="psicoterapia" value="Presencial">
+                        <label for="presencial">Presencial</label>
+                        <input type="radio" id="ambas" name="psicoterapia" value="Ambas">
+                        <label for="ambas">Ambas</label>
+                    </div>
+
+                    <label for="telefonoContacto" style="display: block; margin-bottom: 10px;">Teléfono:</label>
+                    <input type="text" id="telefonoContacto" style="width: 90%; margin-bottom: 20px;" required>
+
+                    <label for="emailContacto" style="display: block; margin-bottom: 10px;">Email:</label>
+                    <input type="email" id="emailContacto" style="width: 90%; margin-bottom: 20px;" required>
+
+                    <label for="comentariosContacto" style="display: block; margin-bottom: 10px;">Comentarios:</label>
+                    <textarea id="mensajeContacto" style="width: 90%; margin-bottom: 20px;" required></textarea>
+
+                    <div class="g-recaptcha" data-sitekey="your-recaptcha-site-key"></div>
+
+                    <button type="submit"
+                        style="background-color: #5b7979; color: white; padding: 10px 20px; border: none; border-radius: 5px;">Enviar</button>
+                </form>
+                <script>
+                    //Ajuste de Text Area Autmaticamente.
+                    const textarea = document.getElementById('mensajeContacto');
+
+                    textarea.addEventListener('input', function () {
+                        this.style.height = 'auto';  // Reiniciar la altura
+                        this.style.height = this.scrollHeight + 'px';  // Ajustar la altura según el contenido
+                    });
+                </script>
+            </div>
+        </section>
+    </main>
+    <footer style="display: flex; justify-content: center;">
+        <p>© 2024 Psicología</p>
+    </footer>
+    <script>
+        //Funciones Menu Hamburguesa.
+        const hamburgerMenu = document.getElementById('hamburger-menu');
+        const closeMenuButton = document.getElementById('close-menu')
+        const sidebar = document.querySelector('.sidebar');
+
+        // Abrir el menú lateral cuando se hace clic en el menú hamburguesa
+        hamburgerMenu.addEventListener('click', () => {
+            sidebar.classList.add('active'); // Muestra el menú lateral
+        });
+
+        // Cerrar el menú lateral cuando se hace clic en el botón de cerrar
+        closeMenuButton.addEventListener('click', () => {
+            sidebar.classList.remove('active'); // Oculta el menú lateral
+        });
+
+
+    </script>
+</body>
+
+</html>

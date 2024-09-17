@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Médico</title>
+    <link rel="stylesheet" href="./stylemedico.css">
+</head>
+
+<body>
+    <header>
+        <h1>Iniciar Sesión del Médico</h1>
+    </header>
+    <div class="menu-medico">
+        <li style="list-style: none;margin-left: 10px;margin-top: 20px;"><a href="index.html"
+                style="color: white;">Volver</a></li>
+    </div>
+    <main>
+        <section id="login" style="width: inherit; padding: 20px;">
+            <form id="login-form">
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required>
+
+                <label for="password">Contraseña:</label>
+                <input type="password" id="password" name="password" required>
+
+                <button type="submit">Iniciar Sesión</button>
+                <p id="mensaje"></p>
+            </form>
+        </section>
+        <section id="turnos" style="display: none;">
+            <h2 style="display: flex;justify-content: center;">
+                Turnos Asignados</h2>
+            <!-- Botón para abrir el modal de agregar turno -->
+            <button id="abrirModalAgregarTurno"
+                style="display: none;margin-left: 10px; background-color: #5b7979; color: white; padding: 10px 20px; border: none; border-radius: 5px; margin-bottom: 20px;">
+                Agregar Turno
+            </button>
+
+            <!-- Modal para agregar turno -->
+            <div id="modalAgregarTurno" class="modal" style="display: none;">
+                <div class="modal-content">
+                    <span id="cerrarModalAgregarTurno" class="close" style="color: red;font-size: 30px;display: flex;
+    justify-content: flex-end;">&times;</span>
+                    <h2>Agregar Turno</h2>
+                    <form id="formAgregarTurno">
+                        <label for="nombre">Nombre:</label>
+                        <input type="text" id="nombre" name="nombre" required>
+
+                        <label for="apellido">Apellido:</label>
+                        <input type="text" id="apellido" name="apellido" required>
+
+                        <label for="telefono">Teléfono:</label>
+                        <input type="text" id="telefono" name="telefono" required>
+
+                        <label for="fecha">Fecha:</label>
+                        <input type="date" id="fecha" name="fecha" required>
+
+                        <label for="hora">Hora:</label>
+                        <input type="time" id="hora" name="hora" required>
+
+                        <button type="submit">Agregar Turno</button>
+                    </form>
+                </div>
+            </div>
+
+            <table id="tabla-turnos" style="flex-direction: column;">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Apellido</th>
+                        <th>Teléfono</th>
+                        <th>Fecha</th>
+                        <th>Hora</th>
+                        <th>X</th>
+                    </tr>
+                </thead>
+                <tbody id="lista-turnos">
+                    <!-- Los turnos serán insertados aquí -->
+                </tbody>
+            </table>
+        </section>
+    </main>
+
+    <script>
+        document.getElementById('login-form').addEventListener('submit', async function (event) {
+            event.preventDefault();
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                const response = await fetch('http://localhost:5000/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    localStorage.setItem('token', data.token);
+                    document.getElementById('login').style.display = 'none';
+                    document.getElementById('turnos').style.display = 'block';
+
+                    // Mostrar el botón de "Agregar Turno"
+                    document.getElementById('abrirModalAgregarTurno').style.display = 'inline-block';
+
+                    obtenerTurnos();
+
+                } else {
+                    document.getElementById('mensaje').textContent = data.message;
+                }
+            } catch (error) {
+                console.error('Error al iniciar sesión:', error);
+                document.getElementById('mensaje').textContent = 'Error al iniciar sesión.';
+            }
+        });
+
+        async function obtenerTurnos() {
+            const token = localStorage.getItem('token');
+
+            try {
+                const response = await fetch('http://localhost:5000/api/obtener-turnos', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `${token}`
+                    }
+                });
+
+                if (response.status === 401) {
+                    window.location.href = 'index.html';
+                    return;
+                }
+
+                const turnos = await response.json();
+
+                const tablaTurnos = document.getElementById('lista-turnos');
+                tablaTurnos.innerHTML = '';
+
+                turnos.forEach(turno => {
+                    const fila = document.createElement('tr');
+                    fila.innerHTML = `
+                        <td>${turno.nombre}</td>
+                        <td>${turno.apellido}</td>
+                        <td>${turno.telefono}</td>
+                        <td>${turno.fecha}</td>
+                        <td>${turno.hora}</td>
+                        <td><button class="eliminar-turno" data-id="${turno._id}">&times;</button></td>
+                    `;
+                    tablaTurnos.appendChild(fila);
+                });
+
+                // Agregar event listener para eliminar los turnos
+                document.querySelectorAll('.eliminar-turno').forEach(button => {
+                    button.addEventListener('click', async (event) => {
+                        const turnoId = event.target.getAttribute('data-id');
+                        await eliminarTurno(turnoId);
+                    });
+                });
+
+            } catch (error) {
+                console.error('Error obteniendo los turnos:', error);
+            }
+        }
+
+        // Mostrar el modal cuando se hace clic en el botón "Agregar Turno"
+        document.getElementById('abrirModalAgregarTurno').addEventListener('click', () => {
+            document.getElementById('modalAgregarTurno').style.display = 'block';
+        });
+        // Cerrar el modal cuando se hace clic en el botón "Cerrar"
+        document.getElementById('cerrarModalAgregarTurno').addEventListener('click', () => {
+            document.getElementById('modalAgregarTurno').style.display = 'none';
+        });
+
+        // Cerrar el modal si el usuario hace clic fuera del contenido del modal
+        window.addEventListener('click', (event) => {
+            const modal = document.getElementById('modalAgregarTurno');
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+
+        // Escuchar el evento de envío del formulario de "Agregar Turno"
+        document.getElementById('formAgregarTurno').addEventListener('submit', async function (event) {
+            event.preventDefault();  // Evita la recarga de la página
+
+            // Obtener los valores del formulario
+            const nombre = document.getElementById('nombre').value;
+            const apellido = document.getElementById('apellido').value;
+            const telefono = document.getElementById('telefono').value;
+            const fecha = document.getElementById('fecha').value;
+            const hora = document.getElementById('hora').value;
+
+            const token = localStorage.getItem('token');  // Obtener el token de autenticación
+
+            try {
+                // Hacer la solicitud POST para agregar el turno
+                const response = await fetch('http://localhost:5000/api/turnos', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `${token}`
+                    },
+                    body: JSON.stringify({
+                        nombre,
+                        apellido,
+                        telefono,
+                        fecha,
+                        hora
+                    })
+                });
+
+                if (response.ok) {
+                    // Si el turno fue agregado correctamente
+                    alert('Turno agregado correctamente');
+
+                    // Cerrar el modal
+                    document.getElementById('modalAgregarTurno').style.display = 'none';
+
+                    // Limpiar el formulario del modal
+                    document.getElementById('formAgregarTurno').reset();
+
+                    // Actualizar la lista de turnos
+                    obtenerTurnos();
+                } else {
+                    const errorData = await response.json();
+                    alert('Error al agregar el turno: ' + errorData.message);
+                }
+            } catch (error) {
+                console.error('Error al agregar turno:', error);
+                alert('Ocurrió un error al agregar el turno.');
+            }
+        });
+
+        async function eliminarTurno(turnoId) {
+            const token = localStorage.getItem('token');
+
+            try {
+                const response = await fetch(`http://localhost:5000/api/eliminar-turno/${turnoId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `${token}`
+                    }
+                });
+
+                if (response.ok) {
+                    alert('Turno eliminado correctamente');
+                    obtenerTurnos();
+                } else {
+                    alert('Error al eliminar el turno');
+                }
+            } catch (error) {
+                console.error('Error al eliminar el turno:', error);
+            }
+        }
+    </script>
+</body>
+
+</html>
